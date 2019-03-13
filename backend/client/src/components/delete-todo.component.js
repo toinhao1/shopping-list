@@ -3,30 +3,21 @@ import React, { Component } from 'react';
 import axios from 'axios';
 
 export default class DeleteTodo extends Component {
-  // constructor(props) {
-  //   super(props);
-  // }
   componentDidMount() {
     axios
       .get('http://localhost:4000/todos/' + this.props.match.params.id)
       .then((res) => {
-        console.log('here');
+        console.log('Item Loaded');
       })
       .catch(function(error) {
         console.log(error);
       });
   }
 
-  // onDeleteClick = (id) => {
-  //   axios
-  //     .delete(`todos/` + this.props._id)
-  //     .then((res) => res.render('/'))
-  //     .catch((err) => console.log(err));
-  // };
   onClick(e) {
     axios
       .delete('http://localhost:4000/todos/' + this.props.match.params.id)
-      .then((res) => console.log('Success'))
+      .then((res) => console.log('Item Delete'))
       .catch((err) => {
         console.log(err);
       });

@@ -3,10 +3,15 @@ const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const config = require('config');
 const todoRoutes = express.Router();
+const auth = require('./middleware/auth');
 const PORT = 4000;
 
 let Todo = require('./todo.model');
+let User = require('./user.model');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -43,7 +48,7 @@ todoRoutes.route('/add').post(function(req, res) {
   todo
     .save()
     .then((todo) => {
-      res.status(200).json({ todo: 'todo added successfully' });
+      res.status(200).json({ todo: 'Item added successfully' });
     })
     .catch((err) => {
       res.status(400).send('adding new todo failed');
@@ -61,7 +66,7 @@ todoRoutes.route('/update/:id').post(function(req, res) {
     todo
       .save()
       .then((todo) => {
-        res.json('Todo updated');
+        res.json('Item updated');
       })
       .catch((err) => {
         res.status(400).send('Update not possible');
@@ -73,6 +78,97 @@ todoRoutes.delete('/:id', (req, res) => {
   Todo.findById(req.params.id)
     .then((todo) => todo.remove().then(() => res.json({ success: true })))
     .catch((err) => res.status(404).json({ success: false }));
+});
+
+// User registration and excrypting password
+todoRoutes.post('/', (req, res) => {
+  const { name, email, password } = req.body;
+
+  // Simple validation
+  if (!name || !email || !password) {
+    return res.status(400).json({ msg: 'Please enter all fields' });
+  }
+
+  // Check for existing user
+  User.findOne({ email }).then((user) => {
+    if (user) return res.status(400).json({ msg: 'User already exists' });
+
+    const newUser = new User({
+      name,
+      email,
+      password
+    });
+
+    // Create salt & hash
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(newUser.password, salt, (err, hash) => {
+        if (err) throw err;
+        newUser.password = hash;
+        newUser.save().then((user) => {
+          jwt.sign(
+            { id: user.id },
+            config.get('jwtSecret'),
+            { expiresIn: 3600 },
+            (err, token) => {
+              if (err) throw err;
+              res.json({
+                token,
+                user: {
+                  id: user.id,
+                  name: user.name,
+                  email: user.email
+                }
+              });
+            }
+          );
+        });
+      });
+    });
+  });
+});
+
+// User signing in
+todoRoutes.post('/', (req, res) => {
+  const { email, password } = req.body;
+
+  // Simple validation
+  if (!email || !password) {
+    return res.status(400).json({ msg: 'Please enter all fields' });
+  }
+
+  // Check for existing user
+  User.findOne({ email }).then((user) => {
+    if (!user) return res.status(400).json({ msg: 'User Does not exist' });
+
+    // Validate password
+    bcrypt.compare(password, user.password).then((isMatch) => {
+      if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
+
+      jwt.sign(
+        { id: user.id },
+        config.get('jwtSecret'),
+        { expiresIn: 3600 },
+        (err, token) => {
+          if (err) throw err;
+          res.json({
+            token,
+            user: {
+              id: user.id,
+              name: user.name,
+              email: user.email
+            }
+          });
+        }
+      );
+    });
+  });
+});
+
+// Authenticating user
+todoRoutes.get('/user', auth, (req, res) => {
+  User.findById(req.user.id)
+    .select('-password')
+    .then((user) => res.json(user));
 });
 
 app.use('/todos', todoRoutes);
