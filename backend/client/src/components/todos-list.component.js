@@ -15,6 +15,7 @@ const Todo = (props) => (
     </td>
     <td>
       <Link to={'/edit/' + props.todo._id}>Edit</Link>
+      <Link to={'/delete/' + props.todo._id}>Delete</Link>
     </td>
   </tr>
 );
@@ -56,7 +57,7 @@ export default class TodosList extends Component {
   render() {
     return (
       <div>
-        <h3>Todos List</h3>
+        <h3>Shopping List</h3>
         <table className="table table-striped" style={{ marginTop: 20 }}>
           <thead>
             <tr>
