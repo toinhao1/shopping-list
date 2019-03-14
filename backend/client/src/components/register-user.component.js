@@ -28,11 +28,15 @@ export default class RegisterUser extends Component {
 
     // Attempt to register
     axios
-      .post('http://localhost:4000/todos/', newUser)
+      .post('http://localhost:4000/user', newUser)
       .then((res) => console.log(res.data))
       .catch((err) => {
         console.log(err);
+        if (err) {
+          alert('You did not fill out the form properly!');
+        }
       });
+    alert('You signed up');
     this.props.history.push('/');
   };
   render() {

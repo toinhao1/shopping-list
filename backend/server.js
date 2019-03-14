@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const todoRoutes = express.Router();
+const userRoutes = express.Router();
 const auth = require('./middleware/auth');
 const PORT = 4000;
 
@@ -81,7 +82,7 @@ todoRoutes.delete('/:id', (req, res) => {
 });
 
 // User registration and excrypting password
-todoRoutes.post('/', (req, res) => {
+userRoutes.post('/', (req, res) => {
   const { name, email, password } = req.body;
 
   // Simple validation
@@ -128,7 +129,7 @@ todoRoutes.post('/', (req, res) => {
 });
 
 // User signing in
-todoRoutes.post('/', (req, res) => {
+userRoutes.post('/', (req, res) => {
   const { email, password } = req.body;
 
   // Simple validation
@@ -165,13 +166,14 @@ todoRoutes.post('/', (req, res) => {
 });
 
 // Authenticating user
-todoRoutes.get('/user', auth, (req, res) => {
+userRoutes.get('/user', auth, (req, res) => {
   User.findById(req.user.id)
     .select('-password')
     .then((user) => res.json(user));
 });
 
 app.use('/todos', todoRoutes);
+app.use('/user', userRoutes);
 
 app.listen(PORT, function() {
   console.log('Server is running on Port: ' + PORT);

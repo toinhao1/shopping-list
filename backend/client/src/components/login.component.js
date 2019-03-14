@@ -3,7 +3,6 @@ import axios from 'axios';
 
 export default class Login extends Component {
   state = {
-    modal: false,
     email: '',
     password: '',
     msg: null
@@ -24,7 +23,17 @@ export default class Login extends Component {
     };
 
     // Attempt to login
-    this.props.login(user);
+    axios
+      .post('http://localhost:4000/user', user)
+      .then((res) => console.log('User logged in.'))
+      .catch((err) => {
+        console.log(err);
+        if (err) {
+          alert('Incorrect Submission');
+        } else {
+          this.props.history.push('/');
+        }
+      });
   };
 
   render() {

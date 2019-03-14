@@ -17,11 +17,11 @@ export default class DeleteTodo extends Component {
   onClick(e) {
     axios
       .delete('http://localhost:4000/todos/' + this.props.match.params.id)
-      .then((res) => console.log('Item Delete'))
+      .then((res) => console.log('Item Deleted'))
       .catch((err) => {
         console.log(err);
       });
-
+    alert('Item Deleted');
     this.props.history.push('/');
   }
 

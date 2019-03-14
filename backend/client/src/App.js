@@ -8,6 +8,7 @@ import TodosList from './components/todos-list.component';
 import DeleteTodo from './components/delete-todo.component';
 import RegisterUser from './components/register-user.component';
 import Login from './components/login.component';
+import Logout from './components/logout.component';
 
 class App extends Component {
   render() {
@@ -31,6 +32,11 @@ class App extends Component {
                   </Link>
                 </li>
                 <li className="navbar-item">
+                  <Link to="/logout" className="nav-link">
+                    Logout
+                  </Link>
+                </li>
+                <li className="navbar-item">
                   <Link to="/create" className="nav-link">
                     Add Item
                   </Link>
@@ -41,6 +47,7 @@ class App extends Component {
 
           <Route path="/" exact component={TodosList} />
           <Route path="/login" exact component={Login} />
+          <Route path="/logout" exact component={Logout} />
           <Route path="/register" exact component={RegisterUser} />
           <Route path="/delete/:id" exact component={DeleteTodo} />
           <Route path="/edit/:id" component={EditTodo} />
